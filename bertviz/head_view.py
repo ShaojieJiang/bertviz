@@ -28,7 +28,7 @@ from bertviz.attention import get_attention
 from IPython.core.display import display, HTML, Javascript
 import os
 
-def show(model, tokenizer, text):
+def show(model, tokenizer, text, module='encoder'):
     vis_html = """
       <span style="user-select:none">
         Layer: <select id="layer"></select>
@@ -41,7 +41,7 @@ def show(model, tokenizer, text):
     vis_js = open(os.path.join(__location__, 'head_view.js')).read()
     attn_data = get_attention(model, tokenizer, text)
     params = {
-        'attention': attn_data,
+        'attention': attn_data[module],
         'default_filter': "all"
     }
     display(Javascript('window.params = %s' % json.dumps(params)))

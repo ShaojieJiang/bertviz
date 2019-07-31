@@ -29,9 +29,25 @@ def get_attention(model, tokenizer, text, include_queries_and_keys=False):
 
     # Call model to get attention data
     model.eval()
-    _, _, attn_data_list = model(tokens_tensor)
+    _, preds, attn_data_lists = model(tokens_tensor)
+    encoder_attn = attn_data_lists['encoder']
+    decoder_attn = attn_data_lists['decoder']
+    cross_attn = attn_data_lists['cross']
+    tgt_tokens = tokenizer.decode(preds.data[0].numpy()[1:]).split() # don't include _start token_
 
-    # Format attention data for visualization
+    encoder_attn = prepare_results(encoder_attn, tokens, tokens, include_queries_and_keys)
+    decoder_attn = prepare_results(decoder_attn, tgt_tokens, tgt_tokens, include_queries_and_keys)
+    cross_attn = prepare_results(cross_attn, tokens, tgt_tokens, include_queries_and_keys)
+
+    if include_queries_and_keys:
+        raise NotImplementedError
+        results.update({
+            'queries': all_queries,
+            'keys': all_keys,
+        })
+    return {'encoder': encoder_attn, 'decoder': decoder_attn, 'cross': cross_attn}
+
+def prepare_results(attn_data_list, left_text, right_text, include_queries_and_keys=False):
     all_attns = []
     all_queries = []
     all_keys = []
@@ -45,14 +61,9 @@ def get_attention(model, tokenizer, text, include_queries_and_keys=False):
             all_keys.append(keys.tolist())
     results = {
         'attn': all_attns,
-        'left_text': tokens,
-        'right_text': tokens
+        'left_text': left_text,
+        'right_text': right_text
     }
-    if include_queries_and_keys:
-        results.update({
-            'queries': all_queries,
-            'keys': all_keys,
-        })
     return {'all': results}
 
 
