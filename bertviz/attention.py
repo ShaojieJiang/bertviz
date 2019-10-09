@@ -52,7 +52,7 @@ def prepare_results(attn_data_list, left_text, right_text, include_queries_and_k
     all_queries = []
     all_keys = []
     for layer, attn_data in enumerate(attn_data_list):
-        attn = attn_data['attn'][0]  # assume batch_size=1; output shape = (num_heads, seq_len, seq_len)
+        attn = attn_data['attn'][0] # assume batch_size=1; output shape = (num_heads, seq_len, seq_len)
         all_attns.append(attn.tolist())
         if include_queries_and_keys:
             queries = attn_data['queries'][0]  # assume batch_size=1; output shape = (num_heads, seq_len, vector_size)
